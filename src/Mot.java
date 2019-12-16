@@ -23,4 +23,21 @@ public class Mot {
     public String getMot(){
         return this.mot;
     }
+
+    public void setMot(String mot) {
+        this.mot = mot;
+    }
+
+    public int getCpt() {
+        return cpt;
+    }
+
+    public void setCpt(int cpt) {
+        this.cpt = cpt;
+    }
+
+    @Override
+    public String toString() {
+        return getMot() + " " + getOccurrence() + " ";
+    }
 }

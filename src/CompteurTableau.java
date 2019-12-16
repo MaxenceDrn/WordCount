@@ -74,6 +74,11 @@ public class CompteurTableau extends Compteur {
         }
     }
 
+    public void afficher(){
+        for(int i = 0; i<getCptMots(); i++){
+            System.out.println(elements[i].getMot() + " " + elements[i].getOccurrence());        }
+    }
+
     public static void main(String[] args) throws FileNotFoundException {
         if (args.length < 1){
             System.err.println("Nom de fichier manquant");
@@ -86,6 +91,7 @@ public class CompteurTableau extends Compteur {
             System.out.println("----------");
 
             c.afficherTOP10();
+            //c.afficher();
         }
     }
 
