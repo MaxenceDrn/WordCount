@@ -1,15 +1,21 @@
 public class MotArbre extends Mot {
     private MotArbre gauche;
-    private MotArbre droit;
+    private MotArbre droite;
 
-    public MotArbre(String m, MotArbre gauche, MotArbre droit) {
+    public MotArbre(String m, MotArbre gauche, MotArbre droite) {
         super(m);
         this.gauche = gauche;
-        this.droit = droit;
+        this.droite = droite;
     }
 
-    public MotArbre(String m){
-        this(m, null,null);
+    public MotArbre(String mot){
+        super(mot);
+        gauche = null;
+        droite = null;
+    }
+
+    public  int cle(){
+        return getMot().hashCode();
     }
 
     public MotArbre getGauche() {
@@ -20,11 +26,11 @@ public class MotArbre extends Mot {
         this.gauche = gauche;
     }
 
-    public MotArbre getDroit() {
-        return droit;
+    public MotArbre getDroite() {
+        return droite;
     }
 
-    public void setDroit(MotArbre droit) {
-        this.droit = droit;
+    public void setDroite(MotArbre droite) {
+        this.droite = droite;
     }
 }

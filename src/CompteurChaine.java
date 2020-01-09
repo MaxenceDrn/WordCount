@@ -1,121 +1,92 @@
-import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
-public class CompteurChaine extends Compteur {
+public class CompteurChaine extends Compteur{
     private MotChaine elements;
-    private int nbElements;
+    private ArrayList<Mot> tabTop10;
 
-    @Override
-    public void addOccurrence(String mot) {
-        if(elements==null){
-            elements= new MotChaine(mot);
-            nbElements=1;
-            return;
-        }
-        MotChaine j=elements;
-        MotChaine prec=elements;
-        while (j!=null){
-            if (j.getMot().equals(mot)){
-                j.nouvelleOccurrence();
-                return;
-            }
-            prec=j;
-            j=j.getNext();
-        }
-        prec.setNext(new MotChaine(mot));
-        nbElements++;
-    }
-
-    public void tri(){
-        for( int i=0;i<nbElements;i++){
-            int idx=0;
-            MotChaine j=elements;
-            MotChaine prec=elements;
-            MotChaine prec2=elements;
-            MotChaine v=elements;
-            while (idx!=i){
-                prec2=j;
-                j=j.getNext();
-                v=j;
-                idx++;
-            }
-            MotChaine max=j;
-            while (j!=null){
-                if (j.getCpt()>max.getCpt()){
-                    max=j;
-                }
-                j=j.getNext();
-            }
-            j=elements;
-            while (j!=null){
-                if (j.getMot().equals(max.getMot())){
-                    break;
-                }
-                prec=j;
-                j=j.getNext();
-            }
-            MotChaine swp=max;
-            MotChaine n=max.getNext();
-            if (idx==0){
-                max=elements;
-                elements=swp;
-                elements.setNext(max.getNext());
-                max.setNext(n);
-                prec.setNext(max);
-            }
-            else{
-                max=v;
-                v=swp;
-                v.setNext(max.getNext());
-                max.setNext(n);
-                prec.setNext(max);
-                prec2.setNext(v);
-            }
-
-
-        }
-    }
-
-    public void afficher(){
-        MotChaine j=elements;
-        while (j!=null){
-            System.out.println(j.getCpt()+" "+j.getMot());
-            j=j.getNext();
-        }
-    }
-
-    public void afficherTop10(){
-        MotChaine j=elements;
-        int cpt = 0;
-        while (j!=null && cpt<10){
-            System.out.println(j.getCpt()+" "+j.getMot());
-            j=j.getNext();
-            cpt++;
-        }
-    }
-
-    public CompteurChaine(String fichierTexte) throws IOException {
+    public CompteurChaine(String fichierTexte) throws FileNotFoundException {
         super(fichierTexte);
     }
 
-    public static void main(String[] args){
-        try {
-            if (args.length < 1) {
-                System.err.println("nom de fichier manquant");
-            }
-            else{
-                CompteurChaine c= new CompteurChaine(args[0]);
-                c.tri();
-                System.out.println("Fichier : "+args[0]);
-                System.out.println("Nombre de mots : "+c.getNbMots());
-                System.out.println("Nombre de mots de taille > 4 : "+c.getNbMots5());
-                System.out.println("----------");
-                c.afficherTop10();
+    public MotChaine getElements() {
+        return elements;
+    }
 
-            }
+    @Override
+    public void addOccurrence(String mot) {
+        if(elements == null){ // ==> Cas ou c'est le premier élément de la liste chainée
+            elements = new MotChaine(mot);
+            return;
         }
-        catch(Exception e){
-            e.printStackTrace();
-            System.exit(1);
+        MotChaine tmp = getElements();
+        MotChaine precedent = getElements();
+
+        while(tmp != null){ // ==> On cherche si le mot n'est pas déjà dans la liste chainée. Si non, on l'ajoute.
+            if(tmp.getMot().equals(mot)){
+                tmp.nouvelleOccurrence();
+                return;
+            }
+            precedent = tmp;
+            tmp = tmp.getNext();
+        }
+
+        precedent.setNext(new MotChaine(mot));
+    }
+
+    // Initialisation du compteur d'occurrence des mots qui va permettre de trier la liste.
+    public static Comparator<Mot> ComparateurOccurrence = new Comparator<Mot>() {
+        @Override
+        public int compare(Mot mot1, Mot mot2) {
+            return mot1.getCpt() - mot2.getCpt();
+        }
+    };
+
+    public void top10(){
+        tabTop10 = new ArrayList<Mot>();
+        tabTop10.add(getElements());
+
+        MotChaine tmp = getElements();
+
+        while(tmp != null){
+            if (tmp.getCpt() >= tabTop10.get(tabTop10.size()-1).getCpt()){ // Si le mot regardé à plus d'occurrence que le dernier mot du tabTop10
+                tabTop10.add(tmp);
+                tabTop10.sort(ComparateurOccurrence);
+                Collections.reverse(tabTop10);
+
+                if(tabTop10.size() > 10){ // Si la taille du tabTop10 dépasse 10, on ne garde que les 10 mots avec le plus d'occurrences.
+                    tabTop10.remove(10);
+                }
+            }
+            tmp = tmp.getNext();
+        }
+
+        for(int i = 0; i < tabTop10.size(); i++){
+            System.out.println(tabTop10.get(i).getMot() + " " + tabTop10.get(i).getCpt());
         }
     }
+
+    public static void main(String[] args) throws FileNotFoundException {
+        if (args.length < 1){
+            System.err.println("Nom de fichier manquant");
+        }
+        else{
+            long debut = System.currentTimeMillis();
+
+            CompteurChaine c = new CompteurChaine(args[0]);
+            System.out.println("Fichier : " + args[0]);
+            System.out.println("Nombre de mots : " + c.getNbMots());
+            System.out.println("Nombre de morts de taille > 4 : " + c.getNbMots5());
+            System.out.println("----------");
+
+            c.top10();
+            long res = System.currentTimeMillis() - debut;
+            System.out.println("\n ----------------------------------------");
+            System.out.println("| Temps d'éxecution du programme: " + res + "ms   ");
+            System.out.println(" ----------------------------------------");
+        }
+    }
+
 }
